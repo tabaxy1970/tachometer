@@ -1,0 +1,41 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.5.4	//
+!_TAG_REVISION_NAME	MCHPTags	//
+!_TAG_REVISION_VERSION	6.0.1	//
+GetLedPortA	C:\work\etc\pic\7seg\main.asm	118;"	l	line:118
+GetLedPortB	C:\work\etc\pic\7seg\main.asm	131;"	l	line:131
+IntRb0	C:\work\etc\pic\7seg\main.asm	39;"	l	line:39
+IntSaveFsr	C:\work\etc\pic\7seg\main.asm	22;"	l	line:22
+IntSavePclath	C:\work\etc\pic\7seg\main.asm	21;"	l	line:21
+IntSaveStatus	C:\work\etc\pic\7seg\main.asm	20;"	l	line:20
+IntSaveWreg	C:\work\etc\pic\7seg\main.asm	19;"	l	line:19
+IntSkip	C:\work\etc\pic\7seg\main.asm	40;"	l	line:40
+InterruptProc	C:\work\etc\pic\7seg\main.asm	55;"	l	line:55
+Led1	C:\work\etc\pic\7seg\main.asm	42;"	l	line:42
+Led2	C:\work\etc\pic\7seg\main.asm	43;"	l	line:43
+Led3	C:\work\etc\pic\7seg\main.asm	44;"	l	line:44
+Led4	C:\work\etc\pic\7seg\main.asm	45;"	l	line:45
+Led5	C:\work\etc\pic\7seg\main.asm	46;"	l	line:46
+LedDrive	C:\work\etc\pic\7seg\main.asm	91;"	l	line:91
+LedPort	C:\work\etc\pic\7seg\main.asm	41;"	l	line:41
+MainLoop	C:\work\etc\pic\7seg\main.asm	222;"	l	line:222
+OldRpm1	C:\work\etc\pic\7seg\main.asm	36;"	l	line:36
+OldRpm2	C:\work\etc\pic\7seg\main.asm	37;"	l	line:37
+OldTimer1	C:\work\etc\pic\7seg\main.asm	29;"	l	line:29
+PowerOnReset	C:\work\etc\pic\7seg\main.asm	189;"	l	line:189
+Rb0Interrupt	C:\work\etc\pic\7seg\main.asm	152;"	l	line:152
+Scan1	C:\work\etc\pic\7seg\main.asm	31;"	l	line:31
+Scan2	C:\work\etc\pic\7seg\main.asm	32;"	l	line:32
+Scan3	C:\work\etc\pic\7seg\main.asm	33;"	l	line:33
+Scan4	C:\work\etc\pic\7seg\main.asm	34;"	l	line:34
+SkipChataCheck	C:\work\etc\pic\7seg\main.asm	256;"	l	line:256
+Timer1	C:\work\etc\pic\7seg\main.asm	24;"	l	line:24
+Timer2	C:\work\etc\pic\7seg\main.asm	25;"	l	line:25
+Timer3	C:\work\etc\pic\7seg\main.asm	26;"	l	line:26
+Timer4	C:\work\etc\pic\7seg\main.asm	27;"	l	line:27
+TimerAddEnd	C:\work\etc\pic\7seg\main.asm	86;"	l	line:86
+TimerInterrupt	C:\work\etc\pic\7seg\main.asm	77;"	l	line:77
