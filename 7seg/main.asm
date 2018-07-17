@@ -54,6 +54,8 @@ Led5
 ;*************** Interrupt*************
 InterruptProc
 		movwf	IntSaveWreg
+		movf	TMR0,W
+		movwf	Timer1
 		swapf	STATUS,W
 		movwf	IntSaveStatus
 		movf	PCLATH,W
@@ -64,6 +66,7 @@ InterruptProc
 		call	TimerInterrupt
 		btfsc	INTCON,INTF
 		call	Rb0Interrupt
+		call	LedDrive
 
 		clrwdt						;Clear watch dog timer and Prescaler
 		movf	IntSavePclath,W
@@ -75,7 +78,6 @@ InterruptProc
 		retfie
 ;*************** TIMER INT Proc ******************
 TimerInterrupt
-		call	LedDrive
 
 ; Timer incliment (24Bit+TimerA)
 		incfsz	Timer2,F
@@ -153,9 +155,6 @@ Rb0Interrupt
 		btfss	INTCON,INTE			; RB0 Interrupt Enable check
 		return
 
-		movf	TMR0,W
-		addlw	H'fc'				; Delay Read Count Gap Adjust 4 Count
-		movwf	Timer1
 		movf	Timer2,W
 		movwf	Scan2
 		movf	Timer3,W
@@ -187,15 +186,15 @@ Rb0Interrupt
 		return
 ;****************  Initial Process  *********************
 PowerOnReset
-	    bsf		STATUS,RP0			;Change to Bank1 
+		bsf		STATUS,RP0			;Change to Bank1 
 		clrwdt						;Clear watch dog timer and Prescaler
 		movlw	H'00'
-        movwf	TRISA				;Set PORTA All Output
+		movwf	TRISA				;Set PORTA All Output
 		movlw	H'01'
-        movwf	TRISB				;Set PORTB to Output/Input(Bit0) mode
+		movwf	TRISB				;Set PORTB to Output/Input(Bit0) mode
 		movlw	H'01'
 		movwf	OPTION_REG			;RB Input Pull Up & PreScale 1/4
-        bcf		STATUS,RP0			;Change to Bank0
+		bcf		STATUS,RP0			;Change to Bank0
 
 		movlw	H'00'
 		movwf	TMR0				; TIMER0 Count Base Value
@@ -226,17 +225,17 @@ MainLoop
 
 		movlw	H'04'		; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
 		movwf	div1d
-		movlw	H'78'		; ÔΩû
+		movlw	H'78'		; ÅEÅE
 		movwf	div1c
-		movlw	H'68'		; ÔΩû
+		movlw	H'68'		; ÅEÅE
 		movwf	div1b
 		movlw	H'c0'		; LSB
 		movwf	div1a
 		movf	Scan4,W		; divider MSB       (Scan1-4)
 		movwf	div2d
-		movf	Scan3,W		; ÔΩû
+		movf	Scan3,W		; ÅEÅE
 		movwf	div2c
-		movf	Scan2,W		; ÔΩû
+		movf	Scan2,W		; ÅEÅE
 		movwf	div2b
 		movf	Scan1,W		; LSB
 		movwf	div2a
