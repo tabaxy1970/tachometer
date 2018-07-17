@@ -224,23 +224,23 @@ MainLoop
 		goto	MainLoop
 		clrf	IntRb0
 
-		movlw	H'59'		;割られる数上位  (023c3460h=37500000)
+		movlw	H'04'		; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
 		movwf	div1d
-		movlw	H'68'		; ～
+		movlw	H'78'		; ～
 		movwf	div1c
-		movlw	H'2f'		; ～
+		movlw	H'68'		; ～
 		movwf	div1b
-		movlw	H'00'		;下位
+		movlw	H'c0'		; LSB
 		movwf	div1a
-		movf	Scan4,W		;割る数上位       (Scan1-4)
+		movf	Scan4,W		; divider MSB       (Scan1-4)
 		movwf	div2d
 		movf	Scan3,W		; ～
 		movwf	div2c
 		movf	Scan2,W		; ～
 		movwf	div2b
-		movf	Scan1,W		;下位
+		movf	Scan1,W		; LSB
 		movwf	div2a
-		call	div32		;答えは div3d,c,b,a 、余りは div4d,c,b,a に返る
+		call	div32		; Anser -> div3d,c,b,a 、surplus div4d,c,b,a return
 
 		movf	div3c,W
 		btfss	STATUS,Z
@@ -250,9 +250,9 @@ MainLoop
 		subwf	div3b,W
 		btfss	STATUS,C
 		goto	SkipChataCheck
-		sublw	H'20'
-		btfss	STATUS,C
-		goto	MainLoop				; spinup 511RPM over
+;		sublw	H'20'
+;		btfss	STATUS,C
+;		goto	MainLoop				; spinup 511RPM over
 SkipChataCheck
 		movf	div3b,W
 		movwf	OldRpm2
