@@ -26,15 +26,10 @@ Timer2
 Timer3
 Timer4
 
-OldTimer1
-
 Scan1
 Scan2
 Scan3
 Scan4
-
-OldRpm1
-OldRpm2
 
 IntRb0
 IntSkip
@@ -165,7 +160,6 @@ Rb0Interrupt
 ;		return
 
 		movf	TMR0,W
-		sublw	H'f'
 		movwf	Timer1
 		movf	Timer2,W
 		movwf	Scan2
@@ -179,7 +173,7 @@ Rb0Interrupt
 		clrf	Timer4
 
 
-		movf	OldTimer1,W			; Lead Timer Adjustment
+		movlw	H'03'
 		subwf	Timer1,W
 		movwf	Scan1
 		movlw	H'01'
@@ -189,9 +183,6 @@ Rb0Interrupt
 		subwf	Scan3,F
 		btfss	STATUS,C
 		subwf	Scan4,F
-
-		movf	Timer1,W
-		movwf	OldTimer1
 
 		bsf		IntRb0,0			; RB0 Interrupt Flag
 		bcf		INTCON,INTF			; Clear RB Int
@@ -223,8 +214,6 @@ PowerOnReset
 		clrf	rpm2_L
 		clrf	rpm3_H
 		clrf	rpm3_L
-		clrf	OldRpm1
-		clrf	OldRpm2
 
 		clrf	Timer1
 		clrf	Timer2
@@ -238,7 +227,6 @@ PowerOnReset
 		clrf	Scan3
 		clrf	Scan4
 
-		clrf	OldTimer1
 		clrf	IntRb0
 MainLoop
 		btfss	IntRb0,0
@@ -247,17 +235,17 @@ MainLoop
 
 		movlw	H'04'		; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
 		movwf	div1d
-		movlw	H'78'		; 
+		movlw	H'78'		;
 		movwf	div1c
-		movlw	H'68'		; 
+		movlw	H'68'		;
 		movwf	div1b
 		movlw	H'c0'		; LSB
 		movwf	div1a
 		movf	Scan4,W		; divider MSB       (Scan1-4)
 		movwf	div2d
-		movf	Scan3,W		; 
+		movf	Scan3,W		;
 		movwf	div2c
-		movf	Scan2,W		; 
+		movf	Scan2,W		;
 		movwf	div2b
 		movf	Scan1,W		; LSB
 		movwf	div2a
@@ -266,9 +254,6 @@ MainLoop
 		movf	div3c,W
 		btfss	STATUS,Z
 		goto	MainLoop	; Chataring Cut ( over 65535RPM )
-
-
-
 
 		movf	rpm2_H,W
 		movwf	rpm3_H
@@ -356,7 +341,6 @@ MainLoop
 		movwf	Led3
 		movf	prm3a,W
 		movwf	Led4
-
 		goto	MainLoop
 
 

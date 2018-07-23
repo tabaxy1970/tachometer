@@ -14,6 +14,18 @@ SuiteArgsString=
 ToolArgsString=
 TraceCmdString=
 [File001]
+Location=C:\work\tacho\7seg\main.err
+Folder=Intermediary
+DeviceName=PIC16F84A
+LanguageToolSuiteID={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
+LanguageToolID={49D3CA3F-D9A3-4518-9943-226A347E8CC7}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPASM Suite\MPASMWIN.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)||$(LKRDIR)||
+SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
+SuiteArgsString=
+ToolArgsString=
+TraceCmdString=
+[File002]
 Location=C:\work\tachometer\7seg\main.cod
 Folder=Output
 DeviceName=PIC16F84A
@@ -25,7 +37,7 @@ SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
 SuiteArgsString=
 ToolArgsString=
 TraceCmdString=
-[File002]
+[File003]
 Location=C:\work\tachometer\7seg\main.hex
 Folder=Output
 DeviceName=PIC16F84A
@@ -37,8 +49,44 @@ SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
 SuiteArgsString=
 ToolArgsString=
 TraceCmdString=
-[File003]
+[File004]
 Location=C:\work\tachometer\7seg\main.lst
+Folder=Output
+DeviceName=PIC16F84A
+LanguageToolSuiteID={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
+LanguageToolID={49D3CA3F-D9A3-4518-9943-226A347E8CC7}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPASM Suite\MPASMWIN.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)||$(LKRDIR)||
+SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
+SuiteArgsString=
+ToolArgsString=
+TraceCmdString=
+[File005]
+Location=C:\work\tacho\7seg\main.cod
+Folder=Output
+DeviceName=PIC16F84A
+LanguageToolSuiteID={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
+LanguageToolID={49D3CA3F-D9A3-4518-9943-226A347E8CC7}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPASM Suite\MPASMWIN.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)||$(LKRDIR)||
+SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
+SuiteArgsString=
+ToolArgsString=
+TraceCmdString=
+[File006]
+Location=C:\work\tacho\7seg\main.hex
+Folder=Output
+DeviceName=PIC16F84A
+LanguageToolSuiteID={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
+LanguageToolID={49D3CA3F-D9A3-4518-9943-226A347E8CC7}
+LanguageToolLocation=C:\Program Files (x86)\Microchip\MPASM Suite\MPASMWIN.exe
+PPAD=$(BINDIR)||$(TMPDIR)||$(AINDIR)||$(INCDIR)||$(LIBDIR)||$(LKRDIR)||
+SOLK=<src>|main.asm||<obj>||<lib>||<lkr>||
+SuiteArgsString=
+ToolArgsString=
+TraceCmdString=
+[File007]
+Location=C:\work\tacho\7seg\main.lst
 Folder=Output
 DeviceName=PIC16F84A
 LanguageToolSuiteID={6B3DAA78-59C1-46DD-B6AA-DBDAE4E06484}
