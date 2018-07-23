@@ -45,6 +45,17 @@ Led3
 Led4
 Led5
 
+rpm0_H
+rpm0_L
+rpm1_H
+rpm1_L
+rpm2_H
+rpm2_L
+rpm3_H
+rpm3_L
+work_H
+work_L
+
 
 		endc
 ;****************  Program Start  ***********************
@@ -54,8 +65,6 @@ Led5
 ;*************** Interrupt*************
 InterruptProc
 		movwf	IntSaveWreg
-		movf	TMR0,W
-		movwf	Timer1
 		swapf	STATUS,W
 		movwf	IntSaveStatus
 		movf	PCLATH,W
@@ -66,7 +75,6 @@ InterruptProc
 		call	TimerInterrupt
 		btfsc	INTCON,INTF
 		call	Rb0Interrupt
-		call	LedDrive
 
 		clrwdt						;Clear watch dog timer and Prescaler
 		movf	IntSavePclath,W
@@ -86,6 +94,7 @@ TimerInterrupt
 		goto	TimerAddEnd
 		incf	Timer4,F
 TimerAddEnd
+		call	LedDrive
 
 		bcf		INTCON,T0IF
 		return
@@ -113,7 +122,7 @@ LedDrive
 		btfsc	STATUS,Z
 		clrf	LedPort
 
-		movlw	H'0c'
+		movlw	H'05'
 		movwf	IntSkip
 		return
 
@@ -152,9 +161,12 @@ GetLedPortB
 
 ;*************** RB0 INT Proc ********************
 Rb0Interrupt
-		btfss	INTCON,INTE			; RB0 Interrupt Enable check
-		return
+;		btfss	INTCON,INTE			; RB0 Interrupt Enable check
+;		return
 
+		movf	TMR0,W
+		sublw	H'f'
+		movwf	Timer1
 		movf	Timer2,W
 		movwf	Scan2
 		movf	Timer3,W
@@ -165,6 +177,7 @@ Rb0Interrupt
 		clrf	Timer2
 		clrf	Timer3
 		clrf	Timer4
+
 
 		movf	OldTimer1,W			; Lead Timer Adjustment
 		subwf	Timer1,W
@@ -202,6 +215,18 @@ PowerOnReset
 		bsf		INTCON,T0IE			; TIMER0 Interrupt Enable
 		bsf		INTCON,GIE			; General Interrupt Enable
 
+		clrf	rpm0_H
+		clrf	rpm0_L
+		clrf	rpm1_H
+		clrf	rpm1_L
+		clrf	rpm2_H
+		clrf	rpm2_L
+		clrf	rpm3_H
+		clrf	rpm3_L
+		clrf	OldRpm1
+		clrf	OldRpm2
+
+		clrf	Timer1
 		clrf	Timer2
 		clrf	Timer3
 		clrf	Timer4
@@ -213,9 +238,6 @@ PowerOnReset
 		clrf	Scan3
 		clrf	Scan4
 
-		clrf	OldRpm1
-		clrf	OldRpm2
-
 		clrf	OldTimer1
 		clrf	IntRb0
 MainLoop
@@ -225,17 +247,17 @@ MainLoop
 
 		movlw	H'04'		; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
 		movwf	div1d
-		movlw	H'78'		; ・・
+		movlw	H'78'		; 
 		movwf	div1c
-		movlw	H'68'		; ・・
+		movlw	H'68'		; 
 		movwf	div1b
 		movlw	H'c0'		; LSB
 		movwf	div1a
 		movf	Scan4,W		; divider MSB       (Scan1-4)
 		movwf	div2d
-		movf	Scan3,W		; ・・
+		movf	Scan3,W		; 
 		movwf	div2c
-		movf	Scan2,W		; ・・
+		movf	Scan2,W		; 
 		movwf	div2b
 		movf	Scan1,W		; LSB
 		movwf	div2a
@@ -245,35 +267,95 @@ MainLoop
 		btfss	STATUS,Z
 		goto	MainLoop	; Chataring Cut ( over 65535RPM )
 
-		movf	OldRpm2,W
-		subwf	div3b,W
-		btfss	STATUS,C
-		goto	SkipChataCheck
-;		sublw	H'20'
-;		btfss	STATUS,C
-;		goto	MainLoop				; spinup 511RPM over
-SkipChataCheck
-		movf	div3b,W
-		movwf	OldRpm2
-		movf	div3a,W
-		movwf	OldRpm1
+
+
+
+		movf	rpm2_H,W
+		movwf	rpm3_H
+		movf	rpm2_L,W
+		movwf	rpm3_L
+
+		movf	rpm1_H,W
+		movwf	rpm2_H
+		movf	rpm1_L,W
+		movwf	rpm2_L
+
+		movf	rpm0_H,W
+		movwf	rpm1_H
+		movf	rpm0_L,W
+		movwf	rpm1_L
 
 		movf	div3b,W
-		movwf	prm1b
+		movwf	rpm0_H
 		movf	div3a,W
+		movwf	rpm0_L
+	
+		movlw	H'00'		; work register clear
+		movwf	work_L
+		movwf	work_H
+
+		movf	rpm0_L,W
+		addwf	rpm1_L,W
+		movwf	work_L
+		btfsc	STATUS,C
+		incf	work_H
+		movf	rpm0_H,W
+		addwf	rpm1_H,W
+		movwf	work_H
+
+		movf	work_L,W
+		addwf	rpm2_L,W
+		movwf	work_L
+		btfsc	STATUS,C
+		incf	work_H
+		movf	work_H,W
+		addwf	rpm2_H,W
+		movwf	work_H
+
+		movf	work_L,W
+		addwf	rpm3_L,W
+		movwf	work_L
+		btfsc	STATUS,C
+		incf	work_H
+		movf	work_H,W
+		addwf	rpm3_H,W
+		movwf	work_H
+
+		bcf		STATUS,C
+		rrf		work_H,F
+		rrf		work_L,F
+		bcf		STATUS,C
+		rrf		work_H,F
+		rrf		work_L,F
+
+		movf	work_H,W
+		movwf	prm1b
+		movf	work_L,W
 		movwf	prm1a
 		call	hexdec16
 
-		movf	prm3e,W
-		movwf	Led1
+;	7SEG. 5Column version
+;		movf	prm3e,W
+;		movwf	Led1
+;		movf	prm3d,W
+;		movwf	Led2
+;		movf	prm3c,W
+;		movwf	Led3
+;		movf	prm3b,W
+;		movwf	Led4
+;		movf	prm3a,W
+;		movwf	Led5
+
+
+;	7SEG. 4Column version
 		movf	prm3d,W
-		movwf	Led2
+		movwf	Led1
 		movf	prm3c,W
-		movwf	Led3
+		movwf	Led2
 		movf	prm3b,W
-		movwf	Led4
+		movwf	Led3
 		movf	prm3a,W
-		movwf	Led5
+		movwf	Led4
 
 		goto	MainLoop
 

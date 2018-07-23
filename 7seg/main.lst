@@ -1,4 +1,4 @@
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  1
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00038 
                       00039 cmpscc  macro   val
                       00040                 movwf   TempWreg
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  2
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00091                 goto    $+4
                       00092                 btfsc   STATUS,C
                       00093                 goto    AddrS
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  3
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -171,271 +171,352 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
   00000021            00045 Led4
   00000022            00046 Led5
                       00047 
-                      00048 
-                      00049                 endc
-                      00050 ;****************  Program Start  ***********************
-0000                  00051         org     0               ;Reset Vector
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  4
+  00000023            00048 rpm0_H
+  00000024            00049 rpm0_L
+  00000025            00050 rpm1_H
+  00000026            00051 rpm1_L
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0000   286D           00052         goto    PowerOnReset
-0004                  00053         org     4               ;Interrupt Vector
-                      00054 ;*************** Interrupt*************
-0004                  00055 InterruptProc
-0004   008C           00056                 movwf   IntSaveWreg
-0005   0801           00057                 movf    TMR0,W
-0006   0090           00058                 movwf   Timer1
-0007   0E03           00059                 swapf   STATUS,W
-0008   008D           00060                 movwf   IntSaveStatus
-0009   080A           00061                 movf    PCLATH,W
-000A   008E           00062                 movwf   IntSavePclath
-                      00063 
-                      00064 ; Check Interrupt Flag
-000B   190B           00065                 btfsc   INTCON,T0IF
-000C   2018           00066                 call    TimerInterrupt
-000D   188B           00067                 btfsc   INTCON,INTF
-000E   2052           00068                 call    Rb0Interrupt
-000F   201F           00069                 call    LedDrive
-                      00070 
-0010   0064           00071                 clrwdt                                          ;Clear watch dog timer and Prescaler
-0011   080E           00072                 movf    IntSavePclath,W
-0012   008A           00073                 movwf   PCLATH
-0013   0E0D           00074                 swapf   IntSaveStatus,W
-0014   0083           00075                 movwf   STATUS
-0015   0E8C           00076                 swapf   IntSaveWreg,F
-0016   0E0C           00077                 swapf   IntSaveWreg,W
-0017   0009           00078                 retfie
-                      00079 ;*************** TIMER INT Proc ******************
-0018                  00080 TimerInterrupt
-                      00081 
-                      00082 ; Timer incliment (24Bit+TimerA)
-0018   0F91           00083                 incfsz  Timer2,F
-0019   281D           00084                 goto    TimerAddEnd
-001A   0F92           00085                 incfsz  Timer3,F
-001B   281D           00086                 goto    TimerAddEnd
-001C   0A93           00087                 incf    Timer4,F
-001D                  00088 TimerAddEnd
+  00000027            00052 rpm2_H
+  00000028            00053 rpm2_L
+  00000029            00054 rpm3_H
+  0000002A            00055 rpm3_L
+  0000002B            00056 work_H
+  0000002C            00057 work_L
+                      00058 
+                      00059 
+                      00060                 endc
+                      00061 ;****************  Program Start  ***********************
+0000                  00062         org     0               ;Reset Vector
+0000   286C           00063         goto    PowerOnReset
+0004                  00064         org     4               ;Interrupt Vector
+                      00065 ;*************** Interrupt*************
+0004                  00066 InterruptProc
+0004   008C           00067                 movwf   IntSaveWreg
+0005   0E03           00068                 swapf   STATUS,W
+0006   008D           00069                 movwf   IntSaveStatus
+0007   080A           00070                 movf    PCLATH,W
+0008   008E           00071                 movwf   IntSavePclath
+                      00072 
+                      00073 ; Check Interrupt Flag
+0009   190B           00074                 btfsc   INTCON,T0IF
+000A   2015           00075                 call    TimerInterrupt
+000B   188B           00076                 btfsc   INTCON,INTF
+000C   2050           00077                 call    Rb0Interrupt
+                      00078 
+000D   0064           00079                 clrwdt                                          ;Clear watch dog timer and Prescaler
+000E   080E           00080                 movf    IntSavePclath,W
+000F   008A           00081                 movwf   PCLATH
+0010   0E0D           00082                 swapf   IntSaveStatus,W
+0011   0083           00083                 movwf   STATUS
+0012   0E8C           00084                 swapf   IntSaveWreg,F
+0013   0E0C           00085                 swapf   IntSaveWreg,W
+0014   0009           00086                 retfie
+                      00087 ;*************** TIMER INT Proc ******************
+0015                  00088 TimerInterrupt
                       00089 
-001D   110B           00090                 bcf             INTCON,T0IF
-001E   0008           00091                 return
-                      00092 ;*************** LED Drive Proc ********************
-001F                  00093 LedDrive
-001F   0B9C           00094                 decfsz  IntSkip,F
-0020   0008           00095                 return
-                      00096 
-0021   2035           00097                 call    GetLedPortA
-0022   0085           00098                 movwf   PORTA
-0023   0804           00099                 movf    FSR,W
-0024   008F           00100                 movwf   IntSaveFsr
-0025   301E           00101                 movlw   Low Led1
-0026   071D           00102                 addwf   LedPort,W
-0027   0084           00103                 movwf   FSR
-0028   0800           00104                 movf    INDF,W
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  5
+                      00090 ; Timer incliment (24Bit+TimerA)
+0015   0F91           00091                 incfsz  Timer2,F
+0016   281A           00092                 goto    TimerAddEnd
+0017   0F92           00093                 incfsz  Timer3,F
+0018   281A           00094                 goto    TimerAddEnd
+0019   0A93           00095                 incf    Timer4,F
+001A                  00096 TimerAddEnd
+001A   201D           00097                 call    LedDrive
+                      00098 
+001B   110B           00099                 bcf             INTCON,T0IF
+001C   0008           00100                 return
+                      00101 ;*************** LED Drive Proc ********************
+001D                  00102 LedDrive
+001D   0B9C           00103                 decfsz  IntSkip,F
+001E   0008           00104                 return
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0029   2040           00105                 call    GetLedPortB
-002A   0086           00106                 movwf   PORTB
+                      00105 
+001F   2033           00106                 call    GetLedPortA
+0020   0085           00107                 movwf   PORTA
+0021   0804           00108                 movf    FSR,W
+0022   008F           00109                 movwf   IntSaveFsr
+0023   301E           00110                 movlw   Low Led1
+0024   071D           00111                 addwf   LedPort,W
+0025   0084           00112                 movwf   FSR
+0026   0800           00113                 movf    INDF,W
+0027   203E           00114                 call    GetLedPortB
+0028   0086           00115                 movwf   PORTB
 Message[305]: Using default destination of 1 (file).
-002B   088F           00107                 movf    IntSaveFsr
-002C   0084           00108                 movwf   FSR
-                      00109 
-002D   0A9D           00110                 incf    LedPort,F
-002E   3005           00111                 movlw   H'05'
-002F   021D           00112                 subwf   LedPort,W
-0030   1903           00113                 btfsc   STATUS,Z
-0031   019D           00114                 clrf    LedPort
-                      00115 
-0032   300C           00116                 movlw   H'0c'
-0033   009C           00117                 movwf   IntSkip
-0034   0008           00118                 return
-                      00119 
-0035                  00120 GetLedPortA
-0035   081D           00121                 movf    LedPort,W
-0036   3907           00122                 andlw   H'07'
-0037   0782           00123                 addwf   PCL,F
-0038   3401           00124                 retlw   H'01'
-0039   3402           00125                 retlw   H'02'
-003A   3404           00126                 retlw   H'04'
-003B   3408           00127                 retlw   H'08'
-003C   3410           00128                 retlw   H'10'
-003D   3400           00129                 retlw   H'00'
-003E   3400           00130                 retlw   H'00'
-003F   3400           00131                 retlw   H'00'
-                      00132 
-0040                  00133 GetLedPortB
-0040   390F           00134                 andlw   H'0f'
-0041   0782           00135                 addwf   PCL,F
-0042   34BE           00136                 retlw   B'10111110'
-0043   3430           00137                 retlw   B'00110000'
-0044   34EC           00138                 retlw   B'11101100'
-0045   34F8           00139                 retlw   B'11111000'
-0046   3472           00140                 retlw   B'01110010'
-0047   34DA           00141                 retlw   B'11011010'
-0048   34DE           00142                 retlw   B'11011110'
-0049   34B2           00143                 retlw   B'10110010'
-004A   34FE           00144                 retlw   B'11111110'
-004B   34FA           00145                 retlw   B'11111010'
-004C   34F6           00146                 retlw   B'11110110'
-004D   345E           00147                 retlw   B'01011110'
-004E   348E           00148                 retlw   B'10001110'
-004F   347C           00149                 retlw   B'01111100'
-0050   34CE           00150                 retlw   B'11001110'
-0051   34C6           00151                 retlw   B'11000110'
-                      00152 
-                      00153 ;*************** RB0 INT Proc ********************
-0052                  00154 Rb0Interrupt
-0052   1E0B           00155                 btfss   INTCON,INTE                     ; RB0 Interrupt Enable check
-0053   0008           00156                 return
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  6
+0029   088F           00116                 movf    IntSaveFsr
+002A   0084           00117                 movwf   FSR
+                      00118 
+002B   0A9D           00119                 incf    LedPort,F
+002C   3005           00120                 movlw   H'05'
+002D   021D           00121                 subwf   LedPort,W
+002E   1903           00122                 btfsc   STATUS,Z
+002F   019D           00123                 clrf    LedPort
+                      00124 
+0030   3005           00125                 movlw   H'05'
+0031   009C           00126                 movwf   IntSkip
+0032   0008           00127                 return
+                      00128 
+0033                  00129 GetLedPortA
+0033   081D           00130                 movf    LedPort,W
+0034   3907           00131                 andlw   H'07'
+0035   0782           00132                 addwf   PCL,F
+0036   3401           00133                 retlw   H'01'
+0037   3402           00134                 retlw   H'02'
+0038   3404           00135                 retlw   H'04'
+0039   3408           00136                 retlw   H'08'
+003A   3410           00137                 retlw   H'10'
+003B   3400           00138                 retlw   H'00'
+003C   3400           00139                 retlw   H'00'
+003D   3400           00140                 retlw   H'00'
+                      00141 
+003E                  00142 GetLedPortB
+003E   390F           00143                 andlw   H'0f'
+003F   0782           00144                 addwf   PCL,F
+0040   34BE           00145                 retlw   B'10111110'
+0041   3430           00146                 retlw   B'00110000'
+0042   34EC           00147                 retlw   B'11101100'
+0043   34F8           00148                 retlw   B'11111000'
+0044   3472           00149                 retlw   B'01110010'
+0045   34DA           00150                 retlw   B'11011010'
+0046   34DE           00151                 retlw   B'11011110'
+0047   34B2           00152                 retlw   B'10110010'
+0048   34FE           00153                 retlw   B'11111110'
+0049   34FA           00154                 retlw   B'11111010'
+004A   34F6           00155                 retlw   B'11110110'
+004B   345E           00156                 retlw   B'01011110'
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00157 
-0054   0811           00158                 movf    Timer2,W
-0055   0096           00159                 movwf   Scan2
-0056   0812           00160                 movf    Timer3,W
-0057   0097           00161                 movwf   Scan3
-0058   0813           00162                 movf    Timer4,W
-0059   0098           00163                 movwf   Scan4
-                      00164 
-005A   0191           00165                 clrf    Timer2
-005B   0192           00166                 clrf    Timer3
-005C   0193           00167                 clrf    Timer4
-                      00168 
-005D   0814           00169                 movf    OldTimer1,W                     ; Lead Timer Adjustment
-005E   0210           00170                 subwf   Timer1,W
-005F   0095           00171                 movwf   Scan1
-0060   3001           00172                 movlw   H'01'
-0061   1C03           00173                 btfss   STATUS,C
-0062   0296           00174                 subwf   Scan2,F
-0063   1C03           00175                 btfss   STATUS,C
-0064   0297           00176                 subwf   Scan3,F
-0065   1C03           00177                 btfss   STATUS,C
-0066   0298           00178                 subwf   Scan4,F
-                      00179 
-0067   0810           00180                 movf    Timer1,W
-0068   0094           00181                 movwf   OldTimer1
-                      00182 
-0069   141B           00183                 bsf             IntRb0,0                        ; RB0 Interrupt Flag
-006A   108B           00184                 bcf             INTCON,INTF                     ; Clear RB Int
-006B   160B           00185                 bsf             INTCON,INTE                     ; RB0 Interrupt Enable
-006C   0008           00186                 return
-                      00187 ;****************  Initial Process  *********************
-006D                  00188 PowerOnReset
-006D   1683           00189                 bsf             STATUS,RP0                      ;Change to Bank1 
-006E   0064           00190                 clrwdt                                          ;Clear watch dog timer and Prescaler
-006F   3000           00191                 movlw   H'00'
-0070   0085           00192                 movwf   TRISA                           ;Set PORTA All Output
-0071   3001           00193                 movlw   H'01'
-0072   0086           00194                 movwf   TRISB                           ;Set PORTB to Output/Input(Bit0) mode
-0073   3001           00195                 movlw   H'01'
-0074   0081           00196                 movwf   OPTION_REG                      ;RB Input Pull Up & PreScale 1/4
-0075   1283           00197                 bcf             STATUS,RP0                      ;Change to Bank0
-                      00198 
-0076   3000           00199                 movlw   H'00'
-0077   0081           00200                 movwf   TMR0                            ; TIMER0 Count Base Value
-0078   160B           00201                 bsf             INTCON,INTE                     ; RB0 Interrupt Enable
-0079   168B           00202                 bsf             INTCON,T0IE                     ; TIMER0 Interrupt Enable
-007A   178B           00203                 bsf             INTCON,GIE                      ; General Interrupt Enable
-                      00204 
-007B   0191           00205                 clrf    Timer2
-007C   0192           00206                 clrf    Timer3
-007D   0193           00207                 clrf    Timer4
-007E   300C           00208                 movlw   H'0c'
-007F   009C           00209                 movwf   IntSkip
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  7
+004C   348E           00157                 retlw   B'10001110'
+004D   347C           00158                 retlw   B'01111100'
+004E   34CE           00159                 retlw   B'11001110'
+004F   34C6           00160                 retlw   B'11000110'
+                      00161 
+                      00162 ;*************** RB0 INT Proc ********************
+0050                  00163 Rb0Interrupt
+                      00164 ;               btfss   INTCON,INTE                     ; RB0 Interrupt Enable check
+                      00165 ;               return
+                      00166 
+0050   0801           00167                 movf    TMR0,W
+0051   3CFD           00168                 sublw   H'fd'
+0052   0090           00169                 movwf   Timer1
+0053   0811           00170                 movf    Timer2,W
+0054   0096           00171                 movwf   Scan2
+0055   0812           00172                 movf    Timer3,W
+0056   0097           00173                 movwf   Scan3
+0057   0813           00174                 movf    Timer4,W
+0058   0098           00175                 movwf   Scan4
+                      00176 
+0059   0191           00177                 clrf    Timer2
+005A   0192           00178                 clrf    Timer3
+005B   0193           00179                 clrf    Timer4
+                      00180 
+                      00181 
+005C   0814           00182                 movf    OldTimer1,W                     ; Lead Timer Adjustment
+005D   0210           00183                 subwf   Timer1,W
+005E   0095           00184                 movwf   Scan1
+005F   3001           00185                 movlw   H'01'
+0060   1C03           00186                 btfss   STATUS,C
+0061   0296           00187                 subwf   Scan2,F
+0062   1C03           00188                 btfss   STATUS,C
+0063   0297           00189                 subwf   Scan3,F
+0064   1C03           00190                 btfss   STATUS,C
+0065   0298           00191                 subwf   Scan4,F
+                      00192 
+0066   0810           00193                 movf    Timer1,W
+0067   0094           00194                 movwf   OldTimer1
+                      00195 
+0068   141B           00196                 bsf             IntRb0,0                        ; RB0 Interrupt Flag
+0069   108B           00197                 bcf             INTCON,INTF                     ; Clear RB Int
+006A   160B           00198                 bsf             INTCON,INTE                     ; RB0 Interrupt Enable
+006B   0008           00199                 return
+                      00200 ;****************  Initial Process  *********************
+006C                  00201 PowerOnReset
+006C   1683           00202                 bsf             STATUS,RP0                      ;Change to Bank1 
+006D   0064           00203                 clrwdt                                          ;Clear watch dog timer and Prescaler
+006E   3000           00204                 movlw   H'00'
+006F   0085           00205                 movwf   TRISA                           ;Set PORTA All Output
+0070   3001           00206                 movlw   H'01'
+0071   0086           00207                 movwf   TRISB                           ;Set PORTB to Output/Input(Bit0) mode
+0072   3001           00208                 movlw   H'01'
+0073   0081           00209                 movwf   OPTION_REG                      ;RB Input Pull Up & PreScale 1/4
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00210 
-0080   0195           00211                 clrf    Scan1
-0081   0196           00212                 clrf    Scan2
-0082   0197           00213                 clrf    Scan3
-0083   0198           00214                 clrf    Scan4
-                      00215 
-0084   0199           00216                 clrf    OldRpm1
-0085   019A           00217                 clrf    OldRpm2
-                      00218 
-0086   0194           00219                 clrf    OldTimer1
-0087   019B           00220                 clrf    IntRb0
-0088                  00221 MainLoop
-0088   1C1B           00222                 btfss   IntRb0,0
-0089   2888           00223                 goto    MainLoop
-008A   019B           00224                 clrf    IntRb0
-                      00225 
-008B   3004           00226                 movlw   H'04'           ; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
-008C   00B4           00227                 movwf   div1d
-008D   3078           00228                 movlw   H'78'           ; ・・
-008E   00B5           00229                 movwf   div1c
-008F   3068           00230                 movlw   H'68'           ; ・・
-0090   00B6           00231                 movwf   div1b
-0091   30C0           00232                 movlw   H'c0'           ; LSB
-0092   00B7           00233                 movwf   div1a
-0093   0818           00234                 movf    Scan4,W         ; divider MSB       (Scan1-4)
-0094   00B8           00235                 movwf   div2d
-0095   0817           00236                 movf    Scan3,W         ; ・・
-0096   00B9           00237                 movwf   div2c
-0097   0816           00238                 movf    Scan2,W         ; ・・
-0098   00BA           00239                 movwf   div2b
-0099   0815           00240                 movf    Scan1,W         ; LSB
-009A   00BB           00241                 movwf   div2a
-009B   2100           00242                 call    div32           ; Anser -> div3d,c,b,a 縲《urplus div4d,c,b,a return
-                      00243 
-009C   083D           00244                 movf    div3c,W
-009D   1D03           00245                 btfss   STATUS,Z
-009E   2888           00246                 goto    MainLoop        ; Chataring Cut ( over 65535RPM )
+0074   1283           00210                 bcf             STATUS,RP0                      ;Change to Bank0
+                      00211 
+0075   3000           00212                 movlw   H'00'
+0076   0081           00213                 movwf   TMR0                            ; TIMER0 Count Base Value
+0077   160B           00214                 bsf             INTCON,INTE                     ; RB0 Interrupt Enable
+0078   168B           00215                 bsf             INTCON,T0IE                     ; TIMER0 Interrupt Enable
+0079   178B           00216                 bsf             INTCON,GIE                      ; General Interrupt Enable
+                      00217 
+007A   01A3           00218                 clrf    rpm0_H
+007B   01A4           00219                 clrf    rpm0_L
+007C   01A5           00220                 clrf    rpm1_H
+007D   01A6           00221                 clrf    rpm1_L
+007E   01A7           00222                 clrf    rpm2_H
+007F   01A8           00223                 clrf    rpm2_L
+0080   01A9           00224                 clrf    rpm3_H
+0081   01AA           00225                 clrf    rpm3_L
+0082   0199           00226                 clrf    OldRpm1
+0083   019A           00227                 clrf    OldRpm2
+                      00228 
+0084   0190           00229                 clrf    Timer1
+0085   0191           00230                 clrf    Timer2
+0086   0192           00231                 clrf    Timer3
+0087   0193           00232                 clrf    Timer4
+0088   300C           00233                 movlw   H'0c'
+0089   009C           00234                 movwf   IntSkip
+                      00235 
+008A   0195           00236                 clrf    Scan1
+008B   0196           00237                 clrf    Scan2
+008C   0197           00238                 clrf    Scan3
+008D   0198           00239                 clrf    Scan4
+                      00240 
+008E   0194           00241                 clrf    OldTimer1
+008F   019B           00242                 clrf    IntRb0
+0090                  00243 MainLoop
+0090   1C1B           00244                 btfss   IntRb0,0
+0091   2890           00245                 goto    MainLoop
+0092   019B           00246                 clrf    IntRb0
                       00247 
-009F   081A           00248                 movf    OldRpm2,W
-00A0   023E           00249                 subwf   div3b,W
-00A1   1C03           00250                 btfss   STATUS,C
-00A2   28A3           00251                 goto    SkipChataCheck
-                      00252 ;               sublw   H'20'
-                      00253 ;               btfss   STATUS,C
-                      00254 ;               goto    MainLoop                                ; spinup 511RPM over
-00A3                  00255 SkipChataCheck
-00A3   083E           00256                 movf    div3b,W
-00A4   009A           00257                 movwf   OldRpm2
-00A5   083F           00258                 movf    div3a,W
-00A6   0099           00259                 movwf   OldRpm1
-                      00260 
-00A7   083E           00261                 movf    div3b,W
-00A8   00C7           00262                 movwf   prm1b
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  8
+0093   3004           00248                 movlw   H'04'           ; CPU clock(5MHz) prescale 1/4 * 60 (047868c0h=75000000)
+0094   00B4           00249                 movwf   div1d
+0095   3078           00250                 movlw   H'78'           ; ・・
+0096   00B5           00251                 movwf   div1c
+0097   3068           00252                 movlw   H'68'           ; ・・
+0098   00B6           00253                 movwf   div1b
+0099   30C0           00254                 movlw   H'c0'           ; LSB
+009A   00B7           00255                 movwf   div1a
+009B   0818           00256                 movf    Scan4,W         ; divider MSB       (Scan1-4)
+009C   00B8           00257                 movwf   div2d
+009D   0817           00258                 movf    Scan3,W         ; ・・
+009E   00B9           00259                 movwf   div2c
+009F   0816           00260                 movf    Scan2,W         ; ・・
+00A0   00BA           00261                 movwf   div2b
+00A1   0815           00262                 movf    Scan1,W         ; LSB
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-00A9   083F           00263                 movf    div3a,W
-00AA   00C8           00264                 movwf   prm1a
-00AB   2177           00265                 call    hexdec16
-                      00266 
-00AC   0849           00267                 movf    prm3e,W
-00AD   009E           00268                 movwf   Led1
-00AE   084A           00269                 movf    prm3d,W
-00AF   009F           00270                 movwf   Led2
-00B0   084B           00271                 movf    prm3c,W
-00B1   00A0           00272                 movwf   Led3
-00B2   084C           00273                 movf    prm3b,W
-00B3   00A1           00274                 movwf   Led4
-00B4   084D           00275                 movf    prm3a,W
-00B5   00A2           00276                 movwf   Led5
+00A2   00BB           00263                 movwf   div2a
+00A3   2100           00264                 call    div32           ; Anser -> div3d,c,b,a 縲《urplus div4d,c,b,a return
+                      00265 
+00A4   083D           00266                 movf    div3c,W
+00A5   1D03           00267                 btfss   STATUS,Z
+00A6   2890           00268                 goto    MainLoop        ; Chataring Cut ( over 65535RPM )
+                      00269 
+                      00270 
+                      00271 
+                      00272 
+00A7   0827           00273                 movf    rpm2_H,W
+00A8   00A9           00274                 movwf   rpm3_H
+00A9   0828           00275                 movf    rpm2_L,W
+00AA   00AA           00276                 movwf   rpm3_L
                       00277 
-00B6   2888           00278                 goto    MainLoop
-                      00279 
-                      00280 
-                      00281                 include                 math.inc
+00AB   0825           00278                 movf    rpm1_H,W
+00AC   00A7           00279                 movwf   rpm2_H
+00AD   0826           00280                 movf    rpm1_L,W
+00AE   00A8           00281                 movwf   rpm2_L
+                      00282 
+00AF   0823           00283                 movf    rpm0_H,W
+00B0   00A5           00284                 movwf   rpm1_H
+00B1   0824           00285                 movf    rpm0_L,W
+00B2   00A6           00286                 movwf   rpm1_L
+                      00287 
+00B3   083E           00288                 movf    div3b,W
+00B4   00A3           00289                 movwf   rpm0_H
+00B5   083F           00290                 movf    div3a,W
+00B6   00A4           00291                 movwf   rpm0_L
+                      00292         
+00B7   3000           00293                 movlw   H'00'           ; work register clear
+00B8   00AC           00294                 movwf   work_L
+00B9   00AB           00295                 movwf   work_H
+                      00296 
+00BA   0824           00297                 movf    rpm0_L,W
+00BB   0726           00298                 addwf   rpm1_L,W
+00BC   00AC           00299                 movwf   work_L
+00BD   1803           00300                 btfsc   STATUS,C
+Message[305]: Using default destination of 1 (file).
+00BE   0AAB           00301                 incf    work_H
+00BF   0823           00302                 movf    rpm0_H,W
+00C0   0725           00303                 addwf   rpm1_H,W
+00C1   00AB           00304                 movwf   work_H
+                      00305 
+00C2   082C           00306                 movf    work_L,W
+00C3   0728           00307                 addwf   rpm2_L,W
+00C4   00AC           00308                 movwf   work_L
+00C5   1803           00309                 btfsc   STATUS,C
+Message[305]: Using default destination of 1 (file).
+00C6   0AAB           00310                 incf    work_H
+00C7   082B           00311                 movf    work_H,W
+00C8   0727           00312                 addwf   rpm2_H,W
+00C9   00AB           00313                 movwf   work_H
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00314 
+00CA   082C           00315                 movf    work_L,W
+00CB   072A           00316                 addwf   rpm3_L,W
+00CC   00AC           00317                 movwf   work_L
+00CD   1803           00318                 btfsc   STATUS,C
+Message[305]: Using default destination of 1 (file).
+00CE   0AAB           00319                 incf    work_H
+00CF   082B           00320                 movf    work_H,W
+00D0   0729           00321                 addwf   rpm3_H,W
+00D1   00AB           00322                 movwf   work_H
+                      00323 
+00D2   1003           00324                 bcf             STATUS,C
+00D3   0CAB           00325                 rrf             work_H,F
+00D4   0CAC           00326                 rrf             work_L,F
+00D5   1003           00327                 bcf             STATUS,C
+00D6   0CAB           00328                 rrf             work_H,F
+00D7   0CAC           00329                 rrf             work_L,F
+                      00330 
+                      00331 ;               movf    div3b,W
+00D8   082B           00332                 movf    work_H,W
+00D9   00C7           00333                 movwf   prm1b
+                      00334 ;               movf    div3a,W
+00DA   082C           00335                 movf    work_L,W
+00DB   00C8           00336                 movwf   prm1a
+00DC   2177           00337                 call    hexdec16
+                      00338 
+                      00339 ;               movf    prm3e,W
+                      00340 ;               movwf   Led1
+00DD   084A           00341                 movf    prm3d,W
+00DE   009E           00342                 movwf   Led1
+00DF   084B           00343                 movf    prm3c,W
+00E0   009F           00344                 movwf   Led2
+00E1   084C           00345                 movf    prm3b,W
+00E2   00A0           00346                 movwf   Led3
+00E3   084D           00347                 movf    prm3a,W
+00E4   00A1           00348                 movwf   Led4
+                      00349 
+00E5   2890           00350                 goto    MainLoop
+                      00351 
+                      00352 
+                      00353                 include                 math.inc
                       00001 ;****************  SRAM define  ********************
                       00002                 cblock  H'34'
   00000034            00003 div1d                           ;割られる数上位　（終了時には０になる）
@@ -448,6 +529,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
   0000003B            00010 div2a                           ;下位
   0000003C            00011 div3d                           ;答え上位　　　　（答えが返る）
   0000003D            00012 div3c                           ; ～
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
   0000003E            00013 div3b                           ; ～
   0000003F            00014 div3a                           ;下位
   00000040            00015 div4d                           ;余り上位　　　　（余りが返る、内部ワークにも使用）
@@ -470,12 +557,6 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00032 
                       00033                 endc
                       00034 
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE  9
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
                       00035 
 0100                  00036                 org             H'100'
                       00037 
@@ -507,6 +588,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00063                 ;div1d,c,b,a ÷ div2d,c,b,a ＝ 結果 div3d,c,b,a  余り div4d,c,b,a
                       00064                 ;演算後、式の左項（割られる数）は壊れる
                       00065                 ;割る数が０（エラー）なら diverr に１を代入して戻る
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
                       00066                 ;エラーの場合、引き数は変化しない
                       00067                 ;正常終了の場合は diverr=0 で戻る
                       00068                 ;32ビットで扱える数の最大は 4294967295　(42億9496万7295)
@@ -529,12 +616,6 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 010F   2915           00085                 goto    di3202
 0110   0BC4           00086                 decfsz  divl1,F
 0111   290A           00087                 goto    di3201
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 10
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
 0112   3001           00088                 movlw   H'01'
 0113   00C6           00089                 movwf   diverr          ;割る数が０である、エラー終了
 0114   0008           00090                 return
@@ -566,6 +647,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 012C                  00116 di3204
 012C   0838           00117                 movf    div2d,W         ;div2c を w にコピー
 012D   0240           00118                 subwf   div4d,W         ;比較
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
 012E   1903           00119                 btfsc   STATUS,Z                ;結果が＝なら di3205 へ
 012F   2934           00120                 goto    di3205
 0130   1803           00121                 btfsc   STATUS,C                ;引くことが可なら di3210 へ
@@ -588,12 +675,6 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 013F   2944           00138                 goto    di3207
 0140   1803           00139                 btfsc   STATUS,C
 0141   294A           00140                 goto    di3210
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 11
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
 0142   1C03           00141                 btfss   STATUS,C
 0143   2962           00142                 goto    di3211
 0144                  00143 di3207:
@@ -625,6 +706,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 015C   1C03           00169                 btfss   STATUS,W
 015D   03C0           00170                 decf    div4d,F         ;４上位 -1
 015E   0838           00171                 movf    div2d,W
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
 015F   02C0           00172                 subwf   div4d,F         ;ワークから上位を引く
 0160   1403           00173                 bsf             STATUS,C                ;キャリフラグを１に
 0161   2963           00174                 goto    di3212
@@ -647,12 +734,6 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0170   0DC3           00191                 rlf             div4a,F
 0171   0DC2           00192                 rlf             div4b,F
 0172   0DC1           00193                 rlf             div4c,F
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 12
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
 0173   0DC0           00194                 rlf             div4d,F
 0174   292C           00195                 goto    di3204
 0175                  00196 di3213
@@ -684,6 +765,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 017F   3010           00222                 movlw   d'16'           ;１６ビットくり返し
 0180   00CE           00223                 movwf   srlc1
 0181   01CF           00224                 clrf    srwk1
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
 0182                  00225 devide0
 0182   1003           00226                 bcf     3h,0            ;キャリフラグのクリア
 0183   0DC8           00227                 rlf     prm1a,1
@@ -706,17 +793,11 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00244 ;---------------------------------------------------------------------
                       00245 ;*********************************************************************
                       00246 
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 13
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
                       00247 ;---------------------------------------------------------------------
                       00248 ;*********************************************************************
-                      00282 
-                      00283         end
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 14
+                      00354 
+                      00355         end
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 15
 
 
 SYMBOL TABLE
@@ -733,8 +814,8 @@ EEIF                              00000004
 F                                 00000001
 FSR                               00000004
 GIE                               00000007
-GetLedPortA                       00000035
-GetLedPortB                       00000040
+GetLedPortA                       00000033
+GetLedPortB                       0000003E
 INDF                              00000000
 INTCON                            0000000B
 INTE                              00000004
@@ -753,9 +834,9 @@ Led2                              0000001F
 Led3                              00000020
 Led4                              00000021
 Led5                              00000022
-LedDrive                          0000001F
+LedDrive                          0000001D
 LedPort                           0000001D
-MainLoop                          00000088
+MainLoop                          00000090
 NOT_PD                            00000003
 NOT_RBPU                          00000007
 NOT_TO                            00000004
@@ -771,11 +852,11 @@ PS0                               00000000
 PS1                               00000001
 PS2                               00000002
 PSA                               00000003
-PowerOnReset                      0000006D
+PowerOnReset                      0000006C
 RBIE                              00000003
 RBIF                              00000000
 RD                                00000000
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 15
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 16
 
 
 SYMBOL TABLE
@@ -783,13 +864,12 @@ SYMBOL TABLE
 
 RP0                               00000005
 RP1                               00000006
-Rb0Interrupt                      00000052
+Rb0Interrupt                      00000050
 STATUS                            00000003
 Scan1                             00000015
 Scan2                             00000016
 Scan3                             00000017
 Scan4                             00000018
-SkipChataCheck                    000000A3
 T0CS                              00000005
 T0IE                              00000005
 T0IF                              00000002
@@ -802,8 +882,8 @@ Timer1                            00000010
 Timer2                            00000011
 Timer3                            00000012
 Timer4                            00000013
-TimerAddEnd                       0000001D
-TimerInterrupt                    00000018
+TimerAddEnd                       0000001A
+TimerInterrupt                    00000015
 W                                 00000000
 WR                                00000001
 WREN                              00000002
@@ -834,13 +914,13 @@ di3203                            00000121
 di3204                            0000012C
 di3205                            00000134
 di3206                            0000013C
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 16
+di3207                            00000144
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 17
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
-di3207                            00000144
 di3210                            0000014A
 di3211                            00000162
 di3212                            00000163
@@ -875,34 +955,41 @@ prm3b                             0000004C
 prm3c                             0000004B
 prm3d                             0000004A
 prm3e                             00000049
+rpm0_H                            00000023
+rpm0_L                            00000024
+rpm1_H                            00000025
+rpm1_L                            00000026
+rpm2_H                            00000027
+rpm2_L                            00000028
+rpm3_H                            00000029
+rpm3_L                            0000002A
 srlc1                             0000004E
 srwk1                             0000004F
+work_H                            0000002B
+work_L                            0000002C
+MPASM  5.11                          MAIN.ASM   7-22-2018  0:47:57         PAGE 18
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
+
 
 0000 : X---XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXX---------
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+00C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX---------- ----------------
 0100 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0140 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-MPASM  5.11                          MAIN.ASM   7-17-2018  15:01:52         PAGE 17
-
-
-MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
-
-
 0180 : XXXXXXXXXXXXXXXX XX-------------- ---------------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:   326
-Program Memory Words Free:   698
+Program Memory Words Used:   373
+Program Memory Words Free:   651
 
 
 Errors   :     0
 Warnings :     0 reported,     0 suppressed
-Messages :     1 reported,     3 suppressed
+Messages :     4 reported,     3 suppressed
 
 
